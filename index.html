@@ -24,20 +24,31 @@
             border: 1px solid #ccc;
             background-color: #f9f9f9;
         }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>ChatGPT Interface</h1>
+    <h1>ChatGPT and Image Generation Interface</h1>
     <textarea id="prompt" placeholder="Enter your prompt here"></textarea>
-    <button id="submit">Send</button>
-    <div id="response"></div>
+    <button id="generate-text">Generate Text</button>
+    <button id="generate-image">Generate Image</button>
+    <div id="response">
+        <p id="text-response"></p>
+        <img id="image-response" src="" alt="Generated Image" style="display: none;">
+    </div>
 
     <script>
-        document.getElementById('submit').addEventListener('click', async () => {
+        document.getElementById('generate-text').addEventListener('click', async () => {
             const prompt = document.getElementById('prompt').value;
-            const responseDiv = document.getElementById('response');
+            const responseDiv = document.getElementById('text-response');
+            const imageElement = document.getElementById('image-response');
 
             responseDiv.textContent = "Loading...";
+            imageElement.style.display = "none";
 
             try {
                 const response = await fetch('http://localhost:3000/api/chat', {
@@ -45,7 +56,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ prompt: prompt }),  // Ensure 'prompt' is passed correctly
+                    body: JSON.stringify({ prompt: prompt }),
                 });
 
                 const data = await response.json();
@@ -56,7 +67,36 @@
             }
         });
 
+        document.getElementById('generate-image').addEventListener('click', async () => {
+            const prompt = document.getElementById('prompt').value;
+            const responseDiv = document.getElementById('text-response');
+            const imageElement = document.getElementById('image-response');
+
+            responseDiv.textContent = "Generating image...";
+            imageElement.style.display = "none";
+
+            try {
+                const response = await fetch('http://localhost:3000/api/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: prompt }),
+                });
+
+                const data = await response.json();
+                if (data.imageUrl) {
+                    responseDiv.textContent = "";
+                    imageElement.src = data.imageUrl;
+                    imageElement.style.display = "block";
+                } else {
+                    responseDiv.textContent = "Error: Unable to generate image.";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.textContent = "Error occurred while generating image.";
+            }
+        });
     </script>
-    
 </body>
 </html>
