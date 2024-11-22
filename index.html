@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>ChatGPT Interface</h1>
+    <textarea id="prompt" placeholder="Enter your prompt here"></textarea>
+    <button id="submit">Send</button>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('submit').addEventListener('click', async () => {
+            const prompt = document.getElementById('prompt').value;
+            const responseDiv = document.getElementById('response');
+
+            responseDiv.textContent = "Loading...";
+
+            try {
+                const response = await fetch('http://localhost:3000/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: prompt }),  // Ensure 'prompt' is passed correctly
+                });
+
+                const data = await response.json();
+                responseDiv.textContent = data.response || "Error: Unable to fetch response";
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.textContent = "Error occurred while fetching response.";
+            }
+        });
+
+    </script>
+    
+</body>
+</html>
