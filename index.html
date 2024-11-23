@@ -5,64 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Visualization</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+        /* Base Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f0f4f8;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            color: #34495e;
+        }
+
+        /* Textarea Styling */
         textarea {
             width: 100%;
-            height: 100px;
-            margin-bottom: 10px;
+            height: 150px;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid #dcdcdc;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            resize: none;
+            background-color: #fff;
         }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button Container Styling (Centering the button) */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Button Styling */
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 15px 25px;
+            font-size: 1rem;
+            color: white;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
             margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(45deg, #2980b9, #3498db);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
         #response {
             margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            justify-content: center;
         }
+
         .story-part {
             position: relative;
             width: 300px;
-            height: 300px;
+            height: 400px;
             overflow: hidden;
-            border: 1px solid #ccc;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background: #fff;
+            transition: transform 0.3s ease;
         }
+
+        .story-part:hover {
+            transform: translateY(-5px);
+        }
+
         .story-part img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
         .story-text-overlay {
             position: absolute;
             bottom: 0;
             width: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            font-size: 14px;
+            font-size: 1rem;
             padding: 10px;
             box-sizing: border-box;
             text-align: center;
+            font-family: 'Georgia', serif;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #777;
         }
     </style>
 </head>
 <body>
     <h1>Story Visualization</h1>
     <textarea id="prompt" placeholder="Enter a story prompt here"></textarea>
-    <button id="generate-story">Generate Story & Images</button>
+
+    <!-- Button Container for Centering -->
+    <div class="button-container">
+        <button id="generate-story">
+            <i class="fas fa-magic"></i> Generate Story & Images
+        </button>
+    </div>
+
     <div id="response"></div>
+
+    <footer>
+        Manuel Fenech & Gabriel Mizzi
+    </footer>
 
     <script>
         document.getElementById('generate-story').addEventListener('click', async () => {
             const prompt = document.getElementById('prompt').value;
             const responseDiv = document.getElementById('response');
-            responseDiv.innerHTML = "Loading...";
+            responseDiv.innerHTML = "<p>Loading...</p>";
 
             try {
                 // Fetch generated text from the server
@@ -129,5 +223,8 @@
             }
         });
     </script>
+
+    <!-- FontAwesome for Icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
 </body>
 </html>
