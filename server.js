@@ -1,8 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import fetch from 'node-fetch'; // Only import once
-import cors from 'cors'; 
+import fetch from 'node-fetch';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -10,10 +10,9 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
-
 app.use(bodyParser.json());
 
-// Text generation endpoint (unchanged)
+// Text generation endpoint
 app.post('/api/chat', async (req, res) => {
     const { prompt } = req.body;
 
@@ -31,19 +30,19 @@ app.post('/api/chat', async (req, res) => {
             body: JSON.stringify({
                 model: 'command-xlarge-nightly',
                 prompt: prompt,
-                max_tokens: 100,
+                max_tokens: 300,
                 temperature: 0.7,
             }),
         });
 
         const data = await response.json();
+
         if (!data || !data.generations || !data.generations[0].text) {
             console.error("Unexpected API response:", data);
             return res.status(500).json({ error: "Invalid response from Cohere API" });
         }
 
-        const responseText = data.generations[0].text.trim();
-        res.json({ response: responseText });
+        res.json({ response: data.generations[0].text.trim() });
     } catch (error) {
         console.error("Server error:", error);
         res.status(500).json({ error: "An error occurred on the server" });

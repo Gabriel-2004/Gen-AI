@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT Interface</title>
+    <title>Story Visualization</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,84 +17,115 @@
         button {
             padding: 10px 20px;
             font-size: 16px;
+            margin-right: 10px;
         }
         #response {
             margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
         }
-        img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 20px;
+        .story-part {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .story-part img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .story-text-overlay {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 14px;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1>ChatGPT and Image Generation Interface</h1>
-    <textarea id="prompt" placeholder="Enter your prompt here"></textarea>
-    <button id="generate-text">Generate Text</button>
-    <button id="generate-image">Generate Image</button>
-    <div id="response">
-        <p id="text-response"></p>
-        <img id="image-response" src="" alt="Generated Image" style="display: none;">
-    </div>
+    <h1>Story Visualization</h1>
+    <textarea id="prompt" placeholder="Enter a story prompt here"></textarea>
+    <button id="generate-story">Generate Story & Images</button>
+    <div id="response"></div>
 
     <script>
-        document.getElementById('generate-text').addEventListener('click', async () => {
+        document.getElementById('generate-story').addEventListener('click', async () => {
             const prompt = document.getElementById('prompt').value;
-            const responseDiv = document.getElementById('text-response');
-            const imageElement = document.getElementById('image-response');
-
-            responseDiv.textContent = "Loading...";
-            imageElement.style.display = "none";
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = "Loading...";
 
             try {
-                const response = await fetch('http://localhost:3000/api/chat', {
+                // Fetch generated text from the server
+                const textResponse = await fetch('http://localhost:3000/api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ prompt: prompt }),
+                    body: JSON.stringify({ prompt }),
                 });
 
-                const data = await response.json();
-                responseDiv.textContent = data.response || "Error: Unable to fetch response";
-            } catch (error) {
-                console.error('Error:', error);
-                responseDiv.textContent = "Error occurred while fetching response.";
-            }
-        });
+                const textData = await textResponse.json();
+                const story = textData.response;
 
-        document.getElementById('generate-image').addEventListener('click', async () => {
-            const prompt = document.getElementById('prompt').value;
-            const responseDiv = document.getElementById('text-response');
-            const imageElement = document.getElementById('image-response');
+                if (!story) {
+                    responseDiv.textContent = "Error: Could not generate text.";
+                    return;
+                }
 
-            responseDiv.textContent = "Generating image...";
-            imageElement.style.display = "none";
+                responseDiv.innerHTML = ""; // Clear previous results
 
-            try {
-                const response = await fetch('http://localhost:3000/api/generate-image', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: prompt }),
-                });
+                // Split the story into parts for image generation
+                const storyParts = story.split('. ').filter(part => part.trim());
 
-                const data = await response.json();
-                if (data.imageUrl) {
-                    responseDiv.textContent = "";
-                    imageElement.src = data.imageUrl;
-                    imageElement.style.display = "block";
-                } else {
-                    responseDiv.textContent = "Error: Unable to generate image.";
+                for (let i = 0; i < storyParts.length; i++) {
+                    const part = storyParts[i];
+
+                    // Generate image for each story part
+                    const imageResponse = await fetch('http://localhost:3000/api/generate-image', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ prompt: part }),
+                    });
+
+                    const imageData = await imageResponse.json();
+                    const imageUrl = imageData.imageUrl;
+
+                    const storyPartDiv = document.createElement('div');
+                    storyPartDiv.className = "story-part";
+
+                    if (imageUrl) {
+                        // Add image with overlay text
+                        storyPartDiv.innerHTML = `
+                            <img src="${imageUrl}" alt="Generated Image">
+                            <div class="story-text-overlay">${part}</div>
+                        `;
+                    } else {
+                        // Display error message if image generation fails
+                        storyPartDiv.innerHTML = `
+                            <div class="story-text-overlay">
+                                <p>${part}</p>
+                                <p style="color: red;">Image generation failed.</p>
+                            </div>
+                        `;
+                    }
+
+                    responseDiv.appendChild(storyPartDiv);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                responseDiv.textContent = "Error occurred while generating image.";
+                responseDiv.textContent = "An error occurred while generating the story and images.";
             }
         });
     </script>
