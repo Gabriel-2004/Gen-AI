@@ -29,11 +29,12 @@ app.post('/api/chat', async (req, res) => {
             },
             body: JSON.stringify({
                 model: 'command-xlarge-nightly',
-                prompt: prompt,
-                max_tokens: 300,
+                prompt: prompt + "when the story is finished say 'The End'", // Removed character limit instruction
+                max_tokens: 1000, // Increased to allow longer responses
                 temperature: 0.7,
+                stop_sequences: ["The End"], // Optional: Define stop sequences
             }),
-        });
+        });        
 
         const data = await response.json();
 

@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Visualization</title>
+    <title>Chatbot Story Visualization</title>
     <style>
-        /* Base Reset */
         * {
             margin: 0;
             padding: 0;
@@ -16,151 +15,256 @@
             font-family: 'Arial', sans-serif;
             line-height: 1.6;
             color: #333;
-            background: #f0f4f8;
+            background: #e6eaf0;
             padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 2.5rem;
-            color: #34495e;
-        }
-
-        /* Textarea Styling */
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid #dcdcdc;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            resize: none;
-            background-color: #fff;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Button Container Styling (Centering the button) */
-        .button-container {
             display: flex;
             justify-content: center;
-            margin-top: 20px;
-        }
-
-        /* Button Styling */
-        button {
-            padding: 15px 25px;
-            font-size: 1rem;
-            color: white;
-            background: linear-gradient(45deg, #3498db, #2980b9);
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: transform 0.3s ease, background 0.3s ease;
-            margin-right: 10px;
-            display: inline-flex;
             align-items: center;
-            justify-content: center;
+            height: 100vh;
         }
 
-        button:hover {
-            transform: scale(1.05);
-            background: linear-gradient(45deg, #2980b9, #3498db);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        button i {
-            margin-right: 8px;
-            font-size: 1.2rem;
-        }
-
-        #response {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-        }
-
-        .story-part {
-            position: relative;
-            width: 300px;
-            height: 400px;
+        .chat-container {
+            max-width: 700px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            background: #fff;
-            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
         }
 
-        .story-part:hover {
-            transform: translateY(-5px);
+        .chat-header {
+            background: #4a90e2;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
         }
 
-        .story-part img {
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .story-text-overlay {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
+        .message {
+            max-width: 75%;
+            padding: 10px 15px;
+            border-radius: 10px;
+            background: #f9f9fb;
             font-size: 1rem;
-            padding: 10px;
-            box-sizing: border-box;
-            text-align: center;
-            font-family: 'Georgia', serif;
         }
 
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 0.9rem;
-            color: #777;
+        .user .message {
+            background: #d4edda;
+            margin-left: auto;
+        }
+
+        .bot .message {
+            background: #f9f9fb;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #dcdcdc;
+            border-radius: 5px;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            color: white;
+            background: #4a90e2;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background: #357abd;
+        }
+
+        button:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
 <body>
-    <h1>Story Visualization</h1>
-    <textarea id="prompt" placeholder="Enter a story prompt here"></textarea>
+    <div class="chat-container">
+        <div class="chat-header">Chatbot Story Visualization</div>
 
-    <!-- Button Container for Centering -->
-    <div class="button-container">
-        <button id="generate-story">
-            <i class="fas fa-magic"></i> Generate Story & Images
-        </button>
+        <div class="chat-messages" id="chat-container">
+            <div class="chat-message bot">
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message">Hi! What genre would you like your story to be in? (e.g., Fantasy, Sci-Fi, Mystery, etc.)</div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type here...">
+            <button id="send-button">Send</button>
+        </div>
     </div>
 
-    <div id="response"></div>
-
-    <footer>
-        Manuel Fenech & Gabriel Mizzi
-    </footer>
-
     <script>
-        document.getElementById('generate-story').addEventListener('click', async () => {
-            const prompt = document.getElementById('prompt').value;
-            const responseDiv = document.getElementById('response');
-            responseDiv.innerHTML = "<p>Loading...</p>";
+        let userPreferences = {
+            genre: '',
+            style: '',
+            tone: '',
+            setting: '',
+            characters: ''
+        };
+    
+        let questionStage = 'genre';  // Track the current question stage
+        let currentChunkIndex = 0;  // Track the current chunk being processed
+        let storyChunks = []; // Store the split story chunks
+        let isRefining = false; // Track if we're in refining mode
+        let currentStory = ''; // Store the entire story
+    
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+        document.getElementById('user-input').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput.trim()) return;
+    
+            const chatContainer = document.getElementById('chat-container');
+    
+            // Display user input
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('chat-message', 'user');
+            userMessageDiv.innerHTML = `
+                <div class="message">${userInput}</div>
+            `;
+            chatContainer.appendChild(userMessageDiv);
+    
+            // Clear input field
+            document.getElementById('user-input').value = '';
+    
+            // Handle user input based on current stage or refine existing story
+            if (questionStage === 'finished') {
+                handleUserInputForModifications(userInput);
+            } else {
+                handleUserInput(userInput);
+            }
+    
+            // Scroll to the latest message
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    
+        function handleUserInput(input) {
+            const trimmedInput = input.trim();
+    
+            if (questionStage === 'genre') {
+                userPreferences.genre = trimmedInput;
+                questionStage = 'style';
+                askForStyle();
+            } else if (questionStage === 'style') {
+                userPreferences.style = trimmedInput;
+                questionStage = 'tone';
+                askForTone();
+            } else if (questionStage === 'tone') {
+                userPreferences.tone = trimmedInput;
+                questionStage = 'setting';
+                askForSetting();
+            } else if (questionStage === 'setting') {
+                userPreferences.setting = trimmedInput;
+                questionStage = 'characters';
+                askForCharacters();
+            } else if (questionStage === 'characters') {
+                userPreferences.characters = trimmedInput;
+                questionStage = 'finished';
+                generateStory();  // All preferences are gathered, now generate the story
+            }
+        }
+    
+        function handleUserInputForModifications(input) {
+            const trimmedInput = input.trim().toLowerCase();
+
+            // Check if the user is updating specific parameters
+            if (trimmedInput.startsWith('genre:')) {
+                userPreferences.genre = input.substring(6).trim();
+                proceedToNextChunk();
+            } else if (trimmedInput.startsWith('style:')) {
+                userPreferences.style = input.substring(6).trim();
+                proceedToNextChunk();
+            } else if (trimmedInput.startsWith('tone:')) {
+                userPreferences.tone = input.substring(5).trim();
+                proceedToNextChunk();
+            } else if (trimmedInput.startsWith('setting:')) {
+                userPreferences.setting = input.substring(8).trim();
+                proceedToNextChunk();
+            } else if (trimmedInput.startsWith('characters:')) {
+                userPreferences.characters = input.substring(11).trim();
+                proceedToNextChunk();
+            } else {
+                // Assume general feedback and pass it to the chat API
+                sendGeneralFeedbackToAPI(input);
+            }
+        }
+
+        async function sendGeneralFeedbackToAPI(feedback) {
+            const chatContainer = document.getElementById('chat-container');
+
+            // Display feedback confirmation
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.classList.add('chat-message', 'bot');
+            botMessageDiv.innerHTML = `
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message">Regenerating story...</div>
+            `;
+            chatContainer.appendChild(botMessageDiv);
 
             try {
-                // Fetch generated text from the server
-                const textResponse = await fetch('http://localhost:3000/api/chat', {
+                // Combine feedback and chat history into a single prompt
+                const chatHistory = getChatHistory();
+                const prompt = `User feedback: "${feedback}"\nChat History:\n${chatHistory.join('\n')}\nStory:\n${storyChunks.join('\n')}`;
+
+                // Send the request to the chat API
+                const response = await fetch('http://localhost:3000/api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -168,63 +272,235 @@
                     body: JSON.stringify({ prompt }),
                 });
 
-                const textData = await textResponse.json();
-                const story = textData.response;
+                const responseData = await response.json();
+                const botResponse = responseData.response;
+                currentChunkIndex = 0;
+                storyChunks = botResponse.split('. ').filter(part => part.trim());
 
-                if (!story) {
-                    responseDiv.textContent = "Error: Could not generate text.";
-                    return;
-                }
-
-                responseDiv.innerHTML = ""; // Clear previous results
-
-                // Split the story into parts for image generation
-                const storyParts = story.split('. ').filter(part => part.trim());
-
-                for (let i = 0; i < storyParts.length; i++) {
-                    const part = storyParts[i];
-
-                    // Generate image for each story part
-                    const imageResponse = await fetch('http://localhost:3000/api/generate-image', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ prompt: part }),
-                    });
-
-                    const imageData = await imageResponse.json();
-                    const imageUrl = imageData.imageUrl;
-
-                    const storyPartDiv = document.createElement('div');
-                    storyPartDiv.className = "story-part";
-
-                    if (imageUrl) {
-                        // Add image with overlay text
-                        storyPartDiv.innerHTML = `
-                            <img src="${imageUrl}" alt="Generated Image">
-                            <div class="story-text-overlay">${part}</div>
-                        `;
-                    } else {
-                        // Display error message if image generation fails
-                        storyPartDiv.innerHTML = `
-                            <div class="story-text-overlay">
-                                <p>${part}</p>
-                                <p style="color: red;">Image generation failed.</p>
-                            </div>
-                        `;
-                    }
-
-                    responseDiv.appendChild(storyPartDiv);
-                }
+                continueStoryGeneration();
             } catch (error) {
                 console.error('Error:', error);
-                responseDiv.textContent = "An error occurred while generating the story and images.";
+                const errorDiv = document.createElement('div');
+                errorDiv.classList.add('chat-message', 'bot');
+                errorDiv.innerHTML = `
+                    <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                    <div class="message">An error occurred while processing your feedback. Please try again later.</div>
+                `;
+                chatContainer.appendChild(errorDiv);
             }
-        });
-    </script>
 
-    <!-- FontAwesome for Icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+            // Scroll to the latest message
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function getChatHistory() {
+            // Collect the chat history from the chat container
+            const chatContainer = document.getElementById('chat-container');
+            const messages = Array.from(chatContainer.querySelectorAll('.chat-message .message'))
+                .map((messageDiv) => messageDiv.textContent.trim())
+                .filter((text) => text); // Remove empty messages
+            return messages;
+        }
+
+
+    
+        function proceedToNextChunk() {
+            // Generate the next chunk based on updated preferences
+            const chatContainer = document.getElementById('chat-container');
+            
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.classList.add('chat-message', 'bot');
+            botMessageDiv.innerHTML = `
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message">Regenerating story...</div>
+            `;
+            chatContainer.appendChild(botMessageDiv);
+    
+            // Call for the next chunk after a delay (to simulate progression)
+            generateStory();
+        }
+    
+        async function generateStory() {
+            const prompt = createStoryPrompt();
+    
+            // Display loading message
+            const chatContainer = document.getElementById('chat-container');
+            const botLoadingDiv = document.createElement('div');
+            botLoadingDiv.classList.add('chat-message', 'bot');
+            botLoadingDiv.innerHTML = `
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message">Generating story...</div>
+            `;
+            chatContainer.appendChild(botLoadingDiv);
+    
+            try {
+                const textResponse = await fetch('http://localhost:3000/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: prompt }),
+                });
+    
+                const textData = await textResponse.json();
+                const story = textData.response;
+                botLoadingDiv.remove();
+    
+                if (!story) {
+                    const botErrorDiv = document.createElement('div');
+                    botErrorDiv.classList.add('chat-message', 'bot');
+                    botErrorDiv.innerHTML = `
+                        <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                        <div class="message">Sorry, I couldn't generate the story. Try again!</div>
+                    `;
+                    chatContainer.appendChild(botErrorDiv);
+                    return;
+                }
+    
+                // Store the full story and split it into chunks for image generation
+                currentStory = story;
+                storyChunks = currentStory.split('. ').filter(part => part.trim());
+    
+                // Proceed to the first chunk
+                currentChunkIndex = 0;
+                continueStoryGeneration();
+            } catch (error) {
+                console.error('Error:', error);
+                botLoadingDiv.remove();
+    
+                const botErrorDiv = document.createElement('div');
+                botErrorDiv.classList.add('chat-message', 'bot');
+                botErrorDiv.innerHTML = `
+                    <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                    <div class="message">An error occurred. Please try again later.</div>
+                `;
+                chatContainer.appendChild(botErrorDiv);
+            }
+        }
+    
+        async function continueStoryGeneration() {
+            const chatContainer = document.getElementById('chat-container');
+
+            // Remove any existing "Next Part" buttons to avoid duplicates
+            const existingNextButtons = chatContainer.querySelectorAll('button');
+            existingNextButtons.forEach(button => button.remove());
+
+            // Get the next chunk of the story
+            const chunk = storyChunks[currentChunkIndex];
+
+            // Display the chunk with an option to edit
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.classList.add('chat-message', 'bot');
+            botMessageDiv.innerHTML = `
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message">${chunk}</div>
+            `;
+            chatContainer.appendChild(botMessageDiv);
+
+            // Generate image for the chunk
+            const imageUrl = await generateImage(chunk);
+
+            // Display the image
+            const botImageDiv = document.createElement('div');
+            botImageDiv.classList.add('chat-message', 'bot');
+            botImageDiv.innerHTML = `
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message">
+                    <img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; border-radius: 10px;">
+                </div>
+            `;
+            chatContainer.appendChild(botImageDiv);
+
+            // Increment the chunk index to move to the next chunk
+            currentChunkIndex++;
+
+            // If there are more chunks, show the Next button
+            if (currentChunkIndex < storyChunks.length) {
+                const nextButtonDiv = document.createElement('div');
+                nextButtonDiv.classList.add('chat-message', 'bot');
+                nextButtonDiv.innerHTML = `
+                    <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                    <div class="message">
+                        <button onclick="continueStoryGeneration()">Next Part</button> or modify preferences (e.g., "Change this scene from the house to the garden").
+                    </div>
+                `;
+                chatContainer.appendChild(nextButtonDiv);
+            } else {
+                const finishedMessageDiv = document.createElement('div');
+                finishedMessageDiv.classList.add('chat-message', 'bot');
+                finishedMessageDiv.innerHTML = `
+                    <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                    <div class="message">The story is complete! Feel free to make any further changes or start a new story.</div>
+                `;
+                chatContainer.appendChild(finishedMessageDiv);
+            }
+
+            // Scroll to the latest message
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    
+        async function generateImage(chunkText) {
+            try {
+                const response = await fetch('http://localhost:3000/api/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: chunkText }),
+                });
+
+                const data = await response.json();
+                if (data.imageUrl) {
+                    return data.imageUrl;
+                } else {
+                    console.error('Image generation failed:', data.error || 'No image URL returned');
+                    return 'https://via.placeholder.com/768?text=Image+Generation+Failed';
+                }
+            } catch (error) {
+                console.error('Error while generating image:', error);
+                return 'https://via.placeholder.com/768?text=Error+Generating+Image';
+            }
+        }
+
+    
+        function createStoryPrompt() {
+            return `Write a story based on the following preferences:
+            Genre: ${userPreferences.genre},
+            Style: ${userPreferences.style},
+            Tone: ${userPreferences.tone},
+            Setting: ${userPreferences.setting},
+            Characters: ${userPreferences.characters}`;
+        }
+    
+        function askForStyle() {
+            showMessage('Please provide the writing style for the story (e.g., casual, formal, poetic, etc.).');
+        }
+    
+        function askForTone() {
+            showMessage('What tone do you want the story to have (e.g., happy, serious, mysterious)?');
+        }
+    
+        function askForSetting() {
+            showMessage('Where does the story take place? (e.g., a house, a beach, a forest)');
+        }
+    
+        function askForCharacters() {
+            showMessage('Who are the main characters in the story? (e.g., a girl, a robot, a knight)');
+        }
+    
+        function showMessage(message) {
+            const chatContainer = document.getElementById('chat-container');
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.classList.add('chat-message', 'bot');
+            botMessageDiv.innerHTML = `
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message">${message}</div>
+            `;
+            chatContainer.appendChild(botMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
+    
+    
 </body>
 </html>
