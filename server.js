@@ -12,6 +12,12 @@ const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
+
 // Text generation endpoint
 app.post('/api/chat', async (req, res) => {
     const { prompt } = req.body;
@@ -50,7 +56,8 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-// Image generation endpoint
+// Old Image generation
+/*
 app.post('/api/generate-image', async (req, res) => {
     const { prompt } = req.body;
 
@@ -70,6 +77,78 @@ app.post('/api/generate-image', async (req, res) => {
     } catch (error) {
         console.error("Error generating image:", error);
         res.status(500).json({ error: "Failed to generate image." });
+    }
+});
+*/
+
+// Helper function to retry fetch
+const retryFetch = async (url, options, retries = 3) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            const response = await fetch(url, options);
+            if (response.ok) {
+                return response;
+            }
+            console.error(`Attempt ${attempt} failed with status: ${response.status}`);
+        } catch (error) {
+            console.error(`Attempt ${attempt} failed with error:`, error);
+        }
+    }
+    throw new Error(`All ${retries} attempts failed`);
+};
+
+let storyContext = {
+    keyDetails: [], // Most important details
+    recentPrompts: [] // Tracks recent prompts
+};
+
+// extract and update key details
+const updateKeyDetails = (prompt) => {
+    const importantDetails = prompt.match(/(?:[A-Z][^.!?]*?important[^.!?]*[.!?])/gi) || [];
+    storyContext.keyDetails = [...storyContext.keyDetails, ...importantDetails].slice(-10); // Keep the last 10 details
+};
+
+
+app.post('/api/generate-image', async (req, res) => {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+    }
+
+    try {
+        // Update the story context with the new prompt
+        storyContext.recentPrompts.push(prompt);
+        if (storyContext.recentPrompts.length > 3) storyContext.recentPrompts.shift(); // keep the last 3 prompts
+        updateKeyDetails(prompt); // extract and track key details
+
+        // Create the cohesive and relevant context
+        const cohesiveContext = [
+            ...storyContext.keyDetails,
+            ...storyContext.recentPrompts
+        ].join(". ");
+
+        // consistent style 
+        const styleDescription = "in a vibrant art style.";
+        const fullPrompt = `${cohesiveContext}. ${styleDescription}`;
+
+        const encodedPrompt = encodeURIComponent(fullPrompt);
+        const width = 768;
+        const height = 768;
+
+        // generate a dynamic seed
+        const seed = Math.floor(Math.random() * 10000);
+        const model = 'flux';
+
+        const imageUrl = `https://pollinations.ai/p/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&model=${model}`;
+
+        // retry up to 3 times
+        await retryFetch(imageUrl, { method: 'GET' }, 3);
+
+        res.json({ imageUrl });
+    } catch (error) {
+        console.error("Error generating image:", error);
+        res.status(500).json({ error: "Failed to generate image after multiple attempts." });
     }
 });
 
