@@ -3,6 +3,13 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import cors from 'cors';
+import fs from 'fs';
+import csv from 'csv-parser';
+
+//const express = require('express');
+//const bodyParser = require('body-parser');
+//const fs = require('fs');
+// const csv = require('csv-parser');
 
 dotenv.config();
 
@@ -17,6 +24,45 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
+
+
+let badWords = [];
+
+// Load profanity words from CSV
+fs.createReadStream('Profanity_dataset/profanity_dataset_en.csv')
+  .pipe(csv({ headers: false })) // Disable headers
+  .on('data', (row) => {
+    // Since the file doesn't have headers, the word is in the first column (row[0])
+    const word = row[0].trim().toLowerCase();
+    if (word) {
+      badWords.push(word);
+    }
+  })
+  .on('end', () => {
+    console.log('Profanity dataset loaded successfully.');
+    console.log('Bad Words:', badWords);  // Log the list of bad words
+  });
+
+// using a endpoint (almost like an API) for validation
+app.post('/api/validate-message', (req, res) => {
+    const { message } = req.body;
+
+    if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Invalid message' });
+    }
+
+    // Create a regex pattern to match each bad word exactly
+    const regexPattern = new RegExp(`\\b(${badWords.join('|')})\\b`, 'i');  // 'i' flag for case-insensitivity
+
+    const hasProfanity = regexPattern.test(message);  // Check if any word in message matches a bad word
+
+    if (hasProfanity) {
+        return res.json({ valid: false, message: 'Your input contains prohibited language.' });
+    }
+
+    res.json({ valid: true });
+});
+
 
 // Text generation endpoint
 app.post('/api/chat', async (req, res) => {

@@ -170,6 +170,16 @@
         async function sendMessage() {
             const userInput = document.getElementById('user-input').value;
             if (!userInput.trim()) return;
+
+
+            // Validate the message for profanity
+            console.log("validating")
+            const isValid = await validateMessage(userInput);
+            if (!isValid) {
+                displayWarning('Your input contains prohibited language. Please try again.');
+                return;
+            }
+            console.log("Done validating")
     
             const chatContainer = document.getElementById('chat-container');
     
@@ -194,6 +204,42 @@
             // Scroll to the latest message
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
+        // validate that user message has no profanity
+        async function validateMessage(message) {
+            try {
+                const response = await fetch('http://localhost:3000/api/validate-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+        
+                const data = await response.json();
+                return data.valid;
+            } catch (error) {
+                console.error('Error during profanity validation:', error);
+                return false;
+            }
+        }
+        
+        // display profanity warning
+        function displayWarning(warningMessage) {
+            const chatContainer = document.getElementById('chat-container');
+        
+            const warningDiv = document.createElement('div');
+            warningDiv.classList.add('chat-message', 'bot');
+            warningDiv.innerHTML = `
+                <div class="avatar"><img src="Resources/Image gen bot avatar.webp" alt="Bot Avatar"></div>
+                <div class="message" style="color: red; font-weight: bold;">${warningMessage}</div>
+            `;
+            chatContainer.appendChild(warningDiv);
+        
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+
     
         function handleUserInput(input) {
             const trimmedInput = input.trim();
