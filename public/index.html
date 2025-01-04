@@ -307,7 +307,7 @@
             try {
                 // Combine feedback and chat history into a single prompt
                 const chatHistory = getChatHistory();
-                const prompt = `User feedback: "${feedback}"\nChat History:\n${chatHistory.join('\n')}\nStory:\n${storyChunks.join('\n')}`;
+                const prompt = `User feedback: "${feedback}"\nChat History:\n${chatHistory.join('\n')}\nStory:\n${storyChunks.join('\n')}. After each sentence write \n`;
 
                 // Send the request to the chat API
                 const response = await fetch('http://localhost:3000/api/chat', {
@@ -321,7 +321,7 @@
                 const responseData = await response.json();
                 const botResponse = responseData.response;
                 currentChunkIndex = 0;
-                storyChunks = botResponse.split('. ').filter(part => part.trim());
+                storyChunks = botResponse.split('\n').filter(part => part.trim());
 
                 continueStoryGeneration();
             } catch (error) {
@@ -405,7 +405,7 @@
     
                 // Store the full story and split it into chunks for image generation
                 currentStory = story;
-                storyChunks = currentStory.split('. ').filter(part => part.trim());
+                storyChunks = currentStory.split('\n').filter(part => part.trim());
     
                 // Proceed to the first chunk
                 currentChunkIndex = 0;
@@ -515,7 +515,8 @@
             Style: ${userPreferences.style},
             Tone: ${userPreferences.tone},
             Setting: ${userPreferences.setting},
-            Characters: ${userPreferences.characters}`;
+            Characters: ${userPreferences.characters},
+            After each sentence write \n`;
         }
     
         function askForStyle() {
