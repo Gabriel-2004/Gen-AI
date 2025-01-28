@@ -25,15 +25,12 @@
         }
 
         .chat-container {
-            max-width: 700px;
-            width: 100%;
-            background: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 80vh;
+            height: 100%;
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+
         }
 
         .chat-header {
@@ -43,29 +40,60 @@
             text-align: center;
             font-size: 1.2rem;
             font-weight: bold;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Take full viewport height */
+        }
+
+        .chat-container-1 {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Take full viewport height */
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 100px;  /* Adjust this to add padding around the chat container */
+            box-sizing: border-box;
+            width: 750px;
         }
 
         .chat-messages {
-            flex: 1;
-            padding: 15px;
+            max-height: 400px;  /* Adjust height as needed */
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            padding-top: 10px;   /* Padding from the top */
+            padding-bottom: 10px; /* Padding from the bottom */
+            padding-left: 15px;  /* Optional: Padding from the left */
+            padding-right: 15px; /* Optional: Padding from the right */
+            margin-bottom: 10px;  /* Space after the last message */
+            background-color: #f9f9f9; /* Optional: background color */
+            border-radius: 8px;
         }
 
         .chat-message {
             display: flex;
-            align-items: flex-start;
-            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px; /* Space between messages */
+        }
+
+        .message {
+            padding: 8px 12px;  /* Tight padding around the text */
+            background-color: #e0e0e0; /* Light background for message box */
+            border-radius: 15px; /* Rounded corners for the message box */
+            max-width: 80%;  /* Optional: To ensure the message boxes aren't too wide */
+            word-wrap: break-word;
         }
 
         .avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            margin-right: 10px;  /* Space between avatar and message */
             overflow: hidden;
-            flex-shrink: 0;
         }
 
         .avatar img {
@@ -89,12 +117,6 @@
 
         .bot .message {
             background: #f9f9fb;
-        }
-
-        .input-container {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #e0e0e0;
         }
 
         input[type="text"] {
@@ -130,7 +152,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 20px;
+            background-color: #f9f9f9;
+            padding: 10px 15px;
+            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px;
         }
         .circle-button {
             display: flex;
@@ -182,10 +207,19 @@
             border-color: #4a90e2;
             box-shadow: 0 0 4px rgba(74, 144, 226, 0.5);
         }
+
+        .chat-message.user .message {
+            background-color: #d1f7ff; /* Light blue background for user message */
+            align-self: flex-end; /* Align user messages to the right */
+        }
+
+        .chat-message.bot .message {
+            background-color: #f1f1f1; /* Light gray background for bot message */
+        }
     </style>
 </head>
 <body>
-    <div class="chat-container">
+    <div class="chat-container-1">
         <div class="chat-header">
             Chatbot Story Visualization</div>
 
@@ -267,7 +301,17 @@
             storyChunks = [];
             isRefining = false;
             currentStory = '';
+
+            // Reattach event listeners for the new buttons
+            document.getElementById('guided-button').addEventListener('click', () => {
+                guidedGeneration();
+            });
+
+            document.getElementById('free-button').addEventListener('click', () => {
+                freeGeneration();
+            });
         }
+
     
         document.getElementById('send-button').addEventListener('click', sendMessage);
         document.getElementById('user-input').addEventListener('keydown', (event) => {
@@ -319,29 +363,24 @@
             const userInput = document.getElementById('user-input').value;
             if (!userInput.trim()) return;
 
-
             // Validate the message for profanity
-            console.log("validating")
             const isValid = await validateMessage(userInput);
             if (!isValid) {
                 displayWarning('Your input contains prohibited language. Please try again.');
                 return;
             }
-            console.log("Done validating")
-    
-            const chatContainer = document.getElementById('chat-container');
-    
+
+            const chatContainer = document.querySelector('.chat-messages'); // Fixed selector
+
             // Display user input
             const userMessageDiv = document.createElement('div');
             userMessageDiv.classList.add('chat-message', 'user');
-            userMessageDiv.innerHTML = `
-                <div class="message">${userInput}</div>
-            `;
+            userMessageDiv.innerHTML = `<div class="message">${userInput}</div>`;
             chatContainer.appendChild(userMessageDiv);
-    
+
             // Clear input field
             document.getElementById('user-input').value = '';
-    
+
             // Handle user input based on current stage or refine existing story
             if (questionStage === 'freeGeneration') {
                 userPreferences.input = userInput;
@@ -351,10 +390,11 @@
             } else {
                 handleUserInput(userInput);
             }
-    
+
             // Scroll to the latest message
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
 
         // validate that user message has no profanity
         async function validateMessage(message) {
