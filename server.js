@@ -43,7 +43,6 @@ fs.createReadStream('Profanity_dataset/profanity_dataset_en.csv')
     //console.log('Bad Words:', badWords);  // Log the list of bad words
   });
 
-// using a endpoint (almost like an API) for validation
 app.post('/api/validate-message', (req, res) => {
     const { message } = req.body;
 
@@ -81,9 +80,9 @@ app.post('/api/chat', async (req, res) => {
             },
             body: JSON.stringify({
                 model: 'command-xlarge-nightly',
-                prompt: prompt + "when the story is finished say 'The End'", // Removed character limit instruction
-                max_tokens: 1000, // Increased to allow longer responses
-                temperature: 0.7,
+                prompt: prompt + "when the story is finished say 'The End'",
+                max_tokens: 1000, // Increase to allow linger responses
+                temperature: 0.7, // Adjust temperature for creativity
                 stop_sequences: ["The End"], // Optional: Define stop sequences
             }),
         });        

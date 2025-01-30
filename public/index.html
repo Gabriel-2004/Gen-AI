@@ -22,17 +22,17 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden; /* Prevent body from scrolling */
+            overflow: hidden;
         }
 
         .chat-container-1 {
             display: flex;
             flex-direction: column;
             width: 750px;
-            max-height: 900px; /* Set a max height */
+            max-height: 900px;
             padding: 10px;
             box-sizing: border-box;
-            overflow: hidden; /* Prevent container from growing */
+            overflow: hidden;
             height: 900px;
         }
 
@@ -50,13 +50,13 @@
         .chat-container {
             display: flex;
             flex-direction: column;
-            height: 100%; /* Takes up full height of the container */
+            height: 100%;
             flex-grow: 1;
             overflow: hidden;
         }
 
         .chat-messages {
-            flex-grow: 1; /* Allow it to grow and fill space */
+            flex-grow: 1;
             overflow-y: auto;
             padding: 10px 15px;
             background-color: #f9f9f9;
@@ -66,7 +66,7 @@
         .chat-message {
             display: flex;
             align-items: center;
-            margin-bottom: 10px; /* Space between messages */
+            margin-bottom: 10px;
         }
 
         .message {
@@ -176,20 +176,20 @@
 
         .chat-message.user {
             display: flex;
-            justify-content: flex-end;  /* Align the user message container to the right */
+            justify-content: flex-end;
         }
 
         .chat-message.user .message {
             background-color: #d1f7ff;
             padding: 10px 15px;
             border-radius: 10px;
-            max-width: 75%;  /* Optional: Prevents the message from being too wide */
-            text-align: right;  /* Align text inside the message to the right */
+            max-width: 75%;
+            text-align: right;
         }
 
         .chat-message.bot {
             display: flex;
-            justify-content: flex-start;  /* Align the bot message container to the left */
+            justify-content: flex-start;
         }
 
         .chat-message.bot .message {
@@ -197,7 +197,7 @@
             padding: 10px 15px;
             border-radius: 10px;
             max-width: 75%;
-            text-align: left;  /* Align text inside the message to the left */
+            text-align: left;
         }
 
     </style>
@@ -368,7 +368,7 @@
                 return;
             }
 
-            const chatContainer = document.querySelector('.chat-messages'); // Fixed selector
+            const chatContainer = document.querySelector('.chat-messages');
 
             // Display user input
             const userMessageDiv = document.createElement('div');
